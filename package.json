@@ -1,0 +1,63 @@
+{
+	"name": "test-dashcommerce-demo",
+	"version": "0.3.0",
+	"private": true,
+	"description": "DashCommerce starter \u2014 a full Astro commerce site. Clone, configure Stripe keys, go.",
+	"type": "module",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "DEPLOY_TARGET=cloudflare astro build && node scripts/patch-wrangler-config.mjs",
+		"build:cf": "DEPLOY_TARGET=cloudflare astro build && node scripts/patch-wrangler-config.mjs",
+		"preview": "astro preview",
+		"start": "node ./dist/server/entry.mjs",
+		"seed": "emdash seed --on-conflict=update",
+		"seed:skip": "emdash seed --on-conflict=skip",
+		"bootstrap": "emdash init && dashcommerce-merge-seed && emdash seed --on-conflict=update",
+		"cf:deploy": "bun run build:cf && wrangler deploy --config dist/server/wrangler.json",
+		"cf:dev": "bun run build:cf && wrangler dev --config dist/server/wrangler.json",
+		"cf:d1:create": "wrangler d1 create dashcommerce-demo",
+		"cf:d1:seed": "node scripts/cf-d1-seed.mjs",
+		"typecheck": "astro check",
+		"build:node": "astro build"
+	},
+	"emdash": {
+		"label": "DashCommerce Starter",
+		"description": "A Stripe-powered storefront with 6 demo products covering every product type, a journal, and a fully CMS-driven homepage.",
+		"seed": ".emdash/seed.json",
+		"preview": "https://demo.dashcommerce.dev"
+	},
+	"dependencies": {
+		"@astrojs/cloudflare": "^13.1.10",
+		"@astrojs/node": "^10.0.0",
+		"@astrojs/react": "^5.0.0",
+		"@astrojs/sitemap": "^3.4.0",
+		"@dashcommerce/core": "^0.2.0",
+		"@emdash-cms/cloudflare": "^0.37.0",
+		"@stripe/react-stripe-js": "^6.0.0",
+		"@stripe/stripe-js": "^9.0.0",
+		"astro": "^6.0.0",
+		"emdash": "^0.37.0",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
+	},
+	"devDependencies": {
+		"@astrojs/check": "^0.9.0",
+		"@cloudflare/workers-types": "^5.20260911.1",
+		"@types/node": "^22.0.0",
+		"@types/react": "^19.0.0",
+		"@types/react-dom": "^19.0.0",
+		"typescript": "^5.9.0",
+		"wrangler": "^4.83.0"
+	},
+	"keywords": [
+		"emdash",
+		"astro",
+		"dashcommerce",
+		"ecommerce",
+		"starter"
+	],
+	"license": "MIT",
+	"patchedDependencies": {
+		"emdash@0.37.0": "patches/emdash@0.37.0.patch"
+	}
+}

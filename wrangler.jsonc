@@ -1,0 +1,51 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "test-dashcommerce-demo",
+	// Custom Worker entry: Astro's fetch handler + EmDash's scheduled() handler,
+	// which the Cron Trigger below drives (plugin cron, scheduled publishing,
+	// system cleanup). See src/worker.ts. The @astrojs/cloudflare adapter merges
+	// its `assets` binding into the generated `dist/server/wrangler.json` at
+	// build time; `bun run build:cf` emits that file and we deploy against it.
+	"main": "./src/worker.ts",
+	"compatibility_date": "2026-04-01",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	// Cron Trigger — drives DashCommerce's abandoned-cart recovery, subscription
+	// dunning, and stock-lock sweeps (plus emdash scheduled publishing). Without
+	// it these background jobs never run on Cloudflare (emdash 0.19+).
+	"triggers": {
+		"crons": [
+			"* * * * *"
+		]
+	},
+	// Deploy against the adapter-generated `dist/server/wrangler.json`, which
+	// merges `assets` + the bindings/vars below. Use `bun run cf:deploy`.
+	"vars": {
+		"SITE_URL": "https://demo.dashcommerce.dev"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "dashcommerce-demo",
+			"database_id": "3a93b052-8ece-4cca-adff-0168eb2790b7"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "MEDIA",
+			"bucket_name": "dashcommerce-demo-media","preview_bucket_name": "dashcommerce-demo-media"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "SESSION","id": "ee479f08135b4a1b9280bd46e6cca8e6"
+		}
+	]
+	// Secrets (not in this file — set via `wrangler secret put`):
+	//   EMDASH_AUTH_SECRET      — session/token signing (generate with `openssl rand -hex 32`)
+	//   EMDASH_PREVIEW_SECRET   — draft content preview signing
+	//
+	// Also set at build time (not here — passed via CI env or shell):
+	//   R2_PUBLIC_URL           — baked into the bundle, e.g. https://pub-xxx.r2.dev
+}
